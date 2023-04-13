@@ -27,6 +27,7 @@ page 50100 "Test Helper Page"
 
                     trigger OnValidate()
                     begin
+                        PageMetadata.Reset();
                         PageMetadata.Find();
                         UpdatePageAppInfo();
                     end;
@@ -111,6 +112,7 @@ page 50100 "Test Helper Page"
 
                     trigger OnValidate()
                     begin
+                        ReportMetadata.Reset();
                         ReportMetadata.Find();
                         UpdateReportAppInfo();
                     end;
@@ -186,6 +188,7 @@ page 50100 "Test Helper Page"
 
                     trigger OnValidate()
                     begin
+                        AllObjWithCaption.Reset();
                         AllObjWithCaption."Object Type" := AllObjWithCaption."Object Type"::XMLport;
                         AllObjWithCaption.Find();
                         UpdateXMLportAppInfo();
@@ -286,6 +289,13 @@ page 50100 "Test Helper Page"
 
                 }
                 actionref("Promo Event Subscriptions"; "Event Subscriptions")
+                {
+
+                }
+            }
+            group("Process")
+            {
+                actionref("Promo Export Table Information"; "Export Table Information")
                 {
 
                 }
@@ -402,6 +412,15 @@ page 50100 "Test Helper Page"
                 trigger OnAction()
                 begin
                     Page.Run(Page::"Event Subscription List");
+                end;
+            }
+            action("Export Table Information")
+            {
+                ApplicationArea = All;
+                Image = Export;
+                trigger OnAction()
+                begin
+                    TestHelperExports.ExportTableInformation();
                 end;
             }
         }

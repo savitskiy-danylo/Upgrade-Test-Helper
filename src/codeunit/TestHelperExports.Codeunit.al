@@ -3,24 +3,27 @@ codeunit 50100 "Test Helper Exports"
     procedure ExportAllObjects()
     var
         TempExcelBuffer: Record "Excel Buffer" temporary;
-        AllObjWithCaptionRec: Record AllObjWithCaption;
+        AllObjWithCaption: Record AllObjWithCaption;
         ExcelFileNameLbl: Label 'AllObjects_%1_%2';
         AllObjWithCaptionLbl: Label 'All Objects';
     begin
         TempExcelBuffer.Reset();
         TempExcelBuffer.DeleteAll();
 
+        AllObjWithCaption.Reset();
+        AllObjWithCaption.FindSet();
+
         TempExcelBuffer.NewRow();
-        TempExcelBuffer.AddColumn(AllObjWithCaptionRec.FieldCaption("Object Type"), false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Text);
-        TempExcelBuffer.AddColumn(AllObjWithCaptionRec.FieldCaption("Object ID"), false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
-        TempExcelBuffer.AddColumn(AllObjWithCaptionRec.FieldCaption("Object Name"), false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Text);
+        TempExcelBuffer.AddColumn(AllObjWithCaption.FieldCaption("Object Type"), false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Text);
+        TempExcelBuffer.AddColumn(AllObjWithCaption.FieldCaption("Object ID"), false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
+        TempExcelBuffer.AddColumn(AllObjWithCaption.FieldCaption("Object Name"), false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Text);
         repeat
             TempExcelBuffer.NewRow();
-            TempExcelBuffer.AddColumn(AllObjWithCaptionRec."Object Type", false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Text);
-            TempExcelBuffer.AddColumn(AllObjWithCaptionRec."Object ID", false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
-            TempExcelBuffer.AddColumn(AllObjWithCaptionRec."Object Name", false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Text);
+            TempExcelBuffer.AddColumn(AllObjWithCaption."Object Type", false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Text);
+            TempExcelBuffer.AddColumn(AllObjWithCaption."Object ID", false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
+            TempExcelBuffer.AddColumn(AllObjWithCaption."Object Name", false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Text);
 
-        until AllObjWithCaptionRec.Next() = 0;
+        until AllObjWithCaption.Next() = 0;
 
         TempExcelBuffer.CreateNewBook(AllObjWithCaptionLbl);
         TempExcelBuffer.WriteSheet(AllObjWithCaptionLbl, CompanyName, UserId);
@@ -49,6 +52,41 @@ codeunit 50100 "Test Helper Exports"
         ReportParams := Report.RunRequestPage(ReportMetadata.ID);
         Report.SaveAs(ReportMetadata.ID, ReportParams, ReportFormat, OutStream);
         FileManagement.BLOBExport(TempBlob, Format(ReportMetadata.Name) + '_' + Format(CURRENTDATETIME, 0, '<Day,2><Month,2><Year4><Hours24><Minutes,2><Seconds,2>') + Ext, true);
+    end;
+
+    procedure ExportTableInformation()
+    var
+        TempExcelBuffer: Record "Excel Buffer" temporary;
+        TableInformation: Record "Table Information";
+        ExcelFileNameLbl: Label 'TableInformation_%1_%2';
+        TableInformationLbl: Label 'Table Information';
+    begin
+        TempExcelBuffer.Reset();
+        TempExcelBuffer.DeleteAll();
+
+        TableInformation.Reset();
+        TableInformation.FindSet();
+
+        TempExcelBuffer.NewRow();
+        TempExcelBuffer.AddColumn(TableInformation.FieldCaption("Table Name"), false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Text);
+        TempExcelBuffer.AddColumn(TableInformation.FieldCaption("Table No."), false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
+        TempExcelBuffer.AddColumn(TableInformation.FieldCaption("Company Name"), false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Text);
+        TempExcelBuffer.AddColumn(TableInformation.FieldCaption("No. of Records"), false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Text);
+        TempExcelBuffer.AddColumn(TableInformation.FieldCaption("Size (KB)"), false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Text);
+        repeat
+            TempExcelBuffer.NewRow();
+            TempExcelBuffer.AddColumn(TableInformation."Table Name", false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Text);
+            TempExcelBuffer.AddColumn(TableInformation."Table No.", false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Number);
+            TempExcelBuffer.AddColumn(TableInformation."Company Name", false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Text);
+            TempExcelBuffer.AddColumn(TableInformation."No. of Records", false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Text);
+            TempExcelBuffer.AddColumn(TableInformation."Size (KB)", false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Text);
+        until TableInformation.Next() = 0;
+
+        TempExcelBuffer.CreateNewBook(TableInformationLbl);
+        TempExcelBuffer.WriteSheet(TableInformationLbl, CompanyName, UserId);
+        TempExcelBuffer.CloseBook();
+        TempExcelBuffer.SetFriendlyFilename(StrSubstNo(ExcelFileNameLbl, CurrentDateTime, UserId));
+        TempExcelBuffer.OpenExcel();
     end;
 
     local procedure GetFileExtension(ReportFormat: ReportFormat): Text
